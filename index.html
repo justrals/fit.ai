@@ -126,7 +126,7 @@
                 const sex = document.getElementById('sex').value;
                 const language = document.getElementById('language').value;
         
-                const prompt = `Generate a fitness plan in ${language} language for a person with the following details:\nAge: ${age},\nWeight: ${weight} kg,\nHeight: ${height} cm,\nSex: ${sex}. Make the outputs in html format. Your response should contain only html tags, no additional texts or commentary.`;
+                const prompt = `Generate a fitness plan in ${language} language for a person with the following details:\nAge: ${age},\nWeight: ${weight} kg,\nHeight: ${height} cm,\nSex: ${sex}. Make the outputs in html format. Your response should contain only html tags, no additional texts or commentary. Also it shouldn't have any non-text related tags, like html or body.`;
         
                 try {
                     outputbox.classList.remove('right-error');
