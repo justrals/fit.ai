@@ -11,46 +11,17 @@
         <link rel="stylesheet" href="css/style.css">
         <link rel="stylesheet" href="css/header.css">
         <link rel="stylesheet" href="css/footer.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+        <script src="js/scripts.js"></script>
     </head>
     <body>
         <header>
             <div class="container">
                 <div class="header-wrapper">
                     <a href="index.html"><p class="logo">FIT.AI</p></a>
-                    <ul class="nav">
-                        <li class="nav-item">
-                            <div class="dropdown">
-                                <button class="dropbtn">Username</button>
-                                <div class="dropdown-content" id="dropdownMenu">
-                                    <a href="index.html">Dashboard</a>
-                                    <a href="index.html">Settings</a>
-                                    <a href="index.html">Log out</a>
-                                </div>
-                            </div>
-                        </li>
-                    </ul>
+                    <a href="https://github.com/justrals/fit.ai" target="_blank"><img src="img/github-logo.svg" height="50px"></a>
                 </div>
             </div>
         </header>
-        <script>
-            document.addEventListener('DOMContentLoaded', (event) => {
-                const dropbtn = document.querySelector('.dropbtn');
-                const dropdownContent = document.getElementById('dropdownMenu');
-
-                dropbtn.addEventListener('click', () => {
-                    dropdownContent.style.display = dropdownContent.style.display === 'block' ? 'none' : 'block';
-                });
-
-                window.addEventListener('click', (event) => {
-                    if (!event.target.matches('.dropbtn')) {
-                        if (dropdownContent.style.display === 'block') {
-                            dropdownContent.style.display = 'none';
-                        }
-                    }
-                });
-            });
-        </script>
         <main>
             <div class="container">
                 <h1 class="title">Make fitness plan</h1>
@@ -77,12 +48,9 @@
                                 <p class="input-badge">Language</p>
                                 <input type="text" id="language" name="language" required>
                             </div>
-                            <div class="input">
-                                <p class="input-badge">Gemini API Token</p>
-                                <input type="text" id="token" name="token" required>
-                            </div>
                             <button id="submit" type="submit" class="button button--light">Generate Fitness Plan</button>
                         </form>
+                        <p>Powered by <a href="https://ai.hackclub.com/">ai.hackclub.com</a></p>
                     </div>
                     <div id="output-box" class="right">
                         <div id="output"></div>
@@ -99,78 +67,6 @@
                     <a href="index.html"><p class="logo">FIT.AI</p></a>
                 </div>
             </div>
-        </footer>
-        <script type="importmap">
-            {
-                "imports": {
-                "@google/generative-ai": "https://esm.sh/@google/generative-ai"
-                }
-            }
-        </script>
-        <script type="module">
-            import { GoogleGenerativeAI } from "@google/generative-ai";
-        
-            const loader = document.getElementById('loader');
-            const outputbox = document.getElementById('output-box')
-            const submitButton = document.getElementById('submit');
-            let savePdfButton;
-        
-            async function savePDF() {
-                const API_KEY = document.getElementById('token').value;
-                const genAI = new GoogleGenerativeAI(API_KEY);
-        
-                const age = document.getElementById('age').value;
-                const weight = document.getElementById('weight').value;
-                const height = document.getElementById('height').value;
-                const sex = document.getElementById('sex').value;
-                const language = document.getElementById('language').value;
-        
-                const prompt = `Generate a fitness plan in ${language} language for a person with the following details:\nAge: ${age},\nWeight: ${weight} kg,\nHeight: ${height} cm,\nSex: ${sex}. Make the outputs in html format. Your response should contain only html tags, no additional texts or commentary. Also it shouldn't have any non-text related tags, like html or body.`;
-        
-                try {
-                    outputbox.classList.remove('right-error');
-                    document.getElementById('output').innerHTML = '';
-                    loader.classList.add('active');
-                    submitButton.disabled = true;
-        
-                    const model = await genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-                    const result = await model.generateContent(prompt);
-        
-                    if (result && typeof result === 'object') {
-                        const htmlContent = result.response.candidates[0].content.parts[0].text;
-                        document.getElementById('output').innerHTML = htmlContent;
-        
-                        savePdfButton = document.createElement('button');
-                        savePdfButton.id = 'save-pdf';
-                        savePdfButton.classList.add('button', 'button--light');
-                        savePdfButton.textContent = 'Save as PDF';
-                        savePdfButton.addEventListener('click', async function(event) {
-                            event.preventDefault();
-                            await generateAndSavePDF();
-                        });
-                        document.getElementById('output').appendChild(savePdfButton);
-                    } else {
-                        throw new Error("Empty or invalid response received.");
-                    }
-                } catch (error) {
-                    console.error("Error generating fitness plan:", error);
-                    document.getElementById('output').textContent = `Failed to generate fitness plan. Try refreshing the page and trying again.`;
-                    outputbox.classList.add('right-error');
-                } finally {
-                    loader.classList.remove('active');
-                    submitButton.disabled = false;
-                }
-            }
-        
-            async function generateAndSavePDF() {
-                const element = document.getElementById('output');
-                await html2pdf().from(element).save('fitness_plan.pdf');
-            }
-        
-            document.getElementById('fitness-form').addEventListener('submit', async function(event) {
-                event.preventDefault();
-                await savePDF();
-            });
-        </script>           
+        </footer>        
     </body>
 </html>
