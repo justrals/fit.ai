@@ -29,6 +29,7 @@ async function generatePlan() {
     const outputbox = document.getElementById('output-box');
     const submitButton = document.getElementById('submit');
     const outputElement = document.getElementById('output');
+    const savePdfButton = document.getElementById('save-pdf-button');
 
     const age = document.getElementById('age').value;
     const weight = document.getElementById('weight').value;
@@ -61,6 +62,7 @@ async function generatePlan() {
     outputbox.classList.remove('error');
     outputElement.innerHTML = '';
     loader.classList.add('active');
+    savePdfButton.classList.add('hidden');
     submitButton.disabled = true;
 
     try {
@@ -95,6 +97,62 @@ async function generatePlan() {
         `;
     } finally {
         loader.classList.remove('active');
+        savePdfButton.classList.remove('hidden');
         submitButton.disabled = false;
     }
+}
+
+function savePDF() {
+    const outputElement = document.getElementById('output');
+    if (!outputElement || !outputElement.innerHTML.trim()) {
+        alert('Please generate a fitness plan first!');
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    
+    const options = {
+        scale: 2,
+        logging: false,
+        useCORS: true,
+        scrollY: 0,
+        windowHeight: outputElement.scrollHeight
+    };
+
+    html2canvas(outputElement, options).then(canvas => {
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const imgData = canvas.toDataURL('image/png');
+        
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const contentWidth = pageWidth - 2 * margin;
+        const contentHeight = (canvas.height * contentWidth) / canvas.width;
+        
+        const totalPages = Math.ceil(contentHeight / pageHeight);
+        
+        for (let i = 0; i < totalPages; i++) {
+            if (i > 0) {
+                pdf.addPage();
+            }
+            
+            const yPos = -(i * (pageHeight - margin));
+            
+            pdf.addImage(
+                imgData, 
+                'PNG', 
+                margin, 
+                yPos, 
+                contentWidth, 
+                contentHeight,
+                undefined,
+                'FAST'
+            );
+        }
+        
+        pdf.save('fitness-plan.pdf');
+    }).catch(error => {
+        console.error('Error generating PDF:', error);
+        alert('Failed to generate PDF. Please try again.');
+    });
 }
